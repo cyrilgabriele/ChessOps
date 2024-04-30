@@ -1,0 +1,15 @@
+tasks: 
+  - source: pgn_to_xlan.py
+    product:
+      nb: /Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/output/pgn_to_xlan.ipynb
+      data: /Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/data/xlan/carlsen.xlanplus
+
+  - source: create_tokens.py
+    product:
+      nb: /Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/output/create_tokens.ipynb 
+      data: /Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/data/tokens//carlsen.tok
+
+  - source: remove_lines.py
+    product: 
+      nb: /Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/output/remove_lines.ipynb 
+      data: /Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/data/tokens/carlsen_max_768.tok
