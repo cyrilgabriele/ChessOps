@@ -252,7 +252,11 @@ class pgn_to_xlan:
             for pos in positions:
                 pgn.seek(pos)
                 game = chess.pgn.read_game(pgn)
+                '''
                 if game.headers["Termination"] == "Time forfeit":
+                    continue
+                '''
+                if "Termination" in game.headers and game.headers["Termination"] == "Time forfeit":
                     continue
                 for xlan_str in self.game_to_xlan(game):
                     if xlan_str:
