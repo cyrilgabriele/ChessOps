@@ -30,7 +30,6 @@ def remove_duplicates(file_path):
     from collections import OrderedDict
 
     with open(file_path, "r") as f:
-        # Using OrderedDict to maintain order and remove duplicates
         lines = OrderedDict((line, None) for line in f)
 
     with open(file_path, "w") as f:

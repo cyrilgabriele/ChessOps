@@ -33,8 +33,6 @@ def remove_lines_with_too_many_tokens(
 
 # +
 def remove(input_file_path, output_file_path):
-    # input_file_path = "./data/tokens/carlsen.tok"
-    # output_file_path = "./data/tokens/carlsen_max_768.tok"
     removed_lines = remove_lines_with_too_many_tokens(input_file_path, output_file_path)
     print(f"Number of removed lines: {removed_lines}")
 
