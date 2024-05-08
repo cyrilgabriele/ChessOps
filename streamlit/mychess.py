@@ -31,58 +31,43 @@ class MyChess:
         <div id="myBoard" style="width: {self.width}px"></div><br>
         <label><strong>Status:</strong></label>
         <div id="status"></div>
-        <input type="text" id="moveInput" placeholder="Enter your move (e.g., e2e4)" style="margin-top: 1px; width: 200px;">
-        <button onclick="getComputerMoveFromAPI()">Make Move</button>
         """
 
     def puzzle_board(self):
         sidetomove = self.__sidetomove__()
         engine_move = """
-        function getComputerMoveFromAPI() {
+        function makeComputerMoveFromAPI() {
         var currentFen = game.fen();
-        fetch('http://localhost:5000/get_move', {  // URL of your Flask API
+        var history = game.pgn();
+
+        fetch('http://localhost:5000/get_move', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({fen: currentFen})
+            body: JSON.stringify({fen: currentFen, history: history})
         })
         .then(response => response.json())
         .then(data => {
-            var move = game.move(data.move);  // Make the move returned by the API
+            console.log("Move received from API:", data);
+            var move = game.move(data.move, {sloppy: true});
             if (move === null) {
-                alert('No valid move returned by API');
+                alert('No valid move returned by API(null)');
                 return;
             }
             board.position(game.fen());  // Update the board position
-            updateStatus();
-
-            // Optionally send the move back to Streamlit or handle additional logic
+            if (window.parent) {
+            console.log("in iframe")
+            window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
+          }
+          else {
+            console.log("not in iframe")
+            window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
+          }
+            updateStatus();  // Update status after the engine move
         })
         .catch(error => console.error('Error fetching move from API:', error));
-      }
-        """
-
-        user_move = """
-        function makeMoveByText() {
-        var moveText = document.getElementById('moveInput').value;
-        var move = game.move(moveText, {sloppy: true});  // 'sloppy' allows for flexible move notation
-
-        if (move === null) {
-            alert('Invalid move');
-            return 'snapback';  // If invalid move, snap back
-          }
-
-          board.position(game.fen());  // Update the board position
-          updateStatus();
-
-          // Send the move back to Streamlit if needed
-          if (window.parent) {
-              window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
-          } else {
-              window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
-          }
-       }
+        }
         """
 
         script1 = f"""
@@ -128,7 +113,7 @@ class MyChess:
             window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
           }
           updateStatus()
-          getComputerMoveFromAPI()
+          makeComputerMoveFromAPI()
         }
         """
 
@@ -192,7 +177,6 @@ class MyChess:
         ret.append(self.__board_placeholder__())
         ret.append("<script>")
         ret.append(engine_move)
-        ret.append(user_move)
         ret.append(script1)
         ret.append(script2)
         ret.append(script3)
