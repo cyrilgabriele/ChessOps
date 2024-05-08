@@ -6,8 +6,11 @@ upstream = None
 # +
 upstream = ["create_tokens"]
 
+
 # +
-def remove_lines_with_too_many_tokens(input_file_path, output_file_path, token_limit=768):
+def remove_lines_with_too_many_tokens(
+    input_file_path, output_file_path, token_limit=768
+):
     with open(input_file_path, "r") as file:
         lines = file.readlines()
 
@@ -27,10 +30,11 @@ def remove_lines_with_too_many_tokens(input_file_path, output_file_path, token_l
 
     return removed_count
 
+
 # +
-def remove(): 
-    input_file_path = "/Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/data/tokens/carlsen.tok"
-    output_file_path = "/Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/data/tokens/carlsen_max_768.tok"
+def remove():
+    input_file_path = "./data/tokens/carlsen.tok"
+    output_file_path = "./data/tokens/carlsen_max_768.tok"
     removed_lines = remove_lines_with_too_many_tokens(input_file_path, output_file_path)
     print(f"Number of removed lines: {removed_lines}")
 
