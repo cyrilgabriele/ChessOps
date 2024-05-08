@@ -38,18 +38,19 @@ if data is not None:
     )
 
 if st.button("start new game"):
-    puzzle = None
+    game = None
     data = None
+
 
 cols = st.columns([1, 1])
 
 with cols[0]:
-    puzzle = MyChess(
+    game = MyChess(
         st.session_state.board_width,
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     )
     components.html(
-        puzzle.puzzle_board(), height=st.session_state.board_width + 75, scrolling=False
+        game.game_board(), height=st.session_state.board_width + 75, scrolling=False
     )
     board = chess.Board(st.session_state.curfen)
     outcome = board.outcome()

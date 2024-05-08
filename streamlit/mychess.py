@@ -33,8 +33,9 @@ class MyChess:
         <div id="status"></div>
         """
 
-    def puzzle_board(self):
+    def game_board(self):
         sidetomove = self.__sidetomove__()
+
         engine_move = """
         function makeComputerMoveFromAPI() {
         var currentFen = game.fen();
