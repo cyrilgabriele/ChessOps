@@ -13,18 +13,18 @@ from peft import LoraConfig, get_peft_model
 
 
 ## HYPERPARAMETERS
-BATCH_SIZE = 16  # use the largest batch size that fits on your GPU
+BATCH_SIZE = 4  # use the largest batch size that fits on your GPU
 SAVE_STEPS = 2000  # how often to save a checkpoint
 LOGGING_STEPS = 50  # how often to validate model and publish it to Weights & Biases
 EPOCHS = 1  # how many epochs to train for - how many times to go through the dataset
 LEARNING_RATE = 0.0001  # learning rate - how fast the model should learn
 SKIP_VALIDATION = True  # skip validation and only save model checkpoints
-WEIGHTS_AND_BIASES_ENABLED = False  # enable logging to Weights & Biases
+WEIGHTS_AND_BIASES_ENABLED = True  # enable logging to Weights & Biases
 USE_FP16 = True  # enable mixed precision training (GPU only)
 XLANPLUS_ENABLED = True  # use xLanPlus tokenizer
 
 ## MODEL
-PEFT_BASE_MODEL = "Leon-LLM/Leon-Chess-350k-BOS"
+PEFT_BASE_MODEL = "Leon-LLM/Leon-Chess-350k-Plus"
 
 ## CONFIG FOR FINE-TUNING
 R = 128  # lower means faster training, but might underfit because of less complexity (experiments don't show that training time increases, which is rather weird)
@@ -33,10 +33,10 @@ LORA_DROPOUT = 0.1
 
 ## PATHS
 # dataset = "/Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/data/tokens/carlsen_max_768.tok"
-dataset = "./data/tokens/carlsen_max_768.tok"
+# dataset = "./data/tokens/carlsen_max_768.tok"
 # output_dir = f"/Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/models/"
-output_dir = f"models/"
-model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}"
+output_dir = "models/"
+model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}".replace("'", "")
 
 
 def create_model():
@@ -76,14 +76,13 @@ def train_model(model, dataset, output_dir, debug=True):
         peft=model,
     )
 
-    # trainer.train() # TODO: uncomment later
-    print("trainer.train()")
+    trainer.train()
+    #print("trainer.train()")
 
 
 def push_model_to_hf(model, name):
-    # TODO: handle login...
-    # model.push_to_hub("your-name/bigscience/mt0-large-lora")
     print(f"push_model_to_hf(model={model}, name={name})")
+    model.push_to_hub(model_name)
     # pass
 
 

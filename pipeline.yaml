@@ -4,8 +4,8 @@ tasks:
       nb: output/pgn_to_xlan.ipynb
       data: data/xlan/{{chess_player}}.xlanplus
     params:
-      pgn_path: data/pgn/{{chess_player}}.pgn
-      lan_path: data/xlan/{{chess_player}}.xlanplus
+      pgn_path: ./data/pgn/{{chess_player}}.pgn
+      lan_path: ./data/xlan/{{chess_player}}.xlanplus
       training_file: ./data/xlan/{{chess_player}}.xlanplus
 
   - source: create_tokens.py
@@ -22,11 +22,12 @@ tasks:
       nb: output/remove_lines.ipynb
       data: data/tokens/{{chess_player}}_max_768.tok
     params:
-      input_file_path: ./data/tokens/carlsen.tok
-      output_file_path: ./data/tokens/carlsen_max_768.tok
+      input_file_path: ./data/tokens/{{chess_player}}.tok
+      output_file_path: ./data/tokens/{{chess_player}}_max_768.tok
 
   - source: finetune.py
     product:
       nb: output/finetune.ipynb
     params:
       chess_player: f'{{chess_player}}'
+      dataset: ./data/tokens/{{chess_player}}_max_768.tok

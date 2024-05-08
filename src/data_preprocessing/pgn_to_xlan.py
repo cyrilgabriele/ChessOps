@@ -248,7 +248,7 @@ class pgn_to_xlan:
         Reads the games from the given positions and converts them to xLAN format.
         """
         buffer = []
-        with open(self.input_path) as pgn:
+        with open(self.input_path, encoding='latin-1') as pgn:
             for pos in positions:
                 pgn.seek(pos)
                 game = chess.pgn.read_game(pgn)
@@ -272,7 +272,7 @@ class pgn_to_xlan:
         start_time = self.start_logging()
         num_processes = multiprocessing.cpu_count()
         writen_games = 0
-        with open(self.input_path) as pgn, open(self.output_path, "w") as outfile:
+        with open(self.input_path, encoding='latin-1') as pgn, open(self.output_path, "w") as outfile:
             while True:
                 game_positions = self.get_game_positions(pgn, 100000)
 
@@ -318,7 +318,7 @@ class pgn_to_xlan:
         buffer = []
         games_processed = 0
 
-        with open(self.input_path) as pgn, open(self.output_path, "w") as outfile:
+        with open(self.input_path, encoding='latin-1') as pgn, open(self.output_path, "w") as outfile:
             total_file_size = os.path.getsize(self.input_path)
 
             while (self.number_of_games_to_write < 0) or (

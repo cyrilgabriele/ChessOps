@@ -103,7 +103,7 @@ class ChessTrainer:
         self.TOKEN_PATH = self.notation_config["token_file"]  # Path to the token file.
 
         self.model_name = output_dir.split("/")[-2]
-        self.wand_project_name = "Leon LLM"
+        self.wand_project_name = "ChessOps"
         self.logging_dir = "./logs"
         self.report_to = "none"
 
