@@ -7,19 +7,15 @@ upstream = None
 upstream = []
 
 
-def pgn_to_xlan():
+def pgn_to_xlan(pgn_path, xlan_path):
     from src.data_preprocessing.pgn_to_xlan import pgn_to_xlan
-
-    # TODO change to valid paths
-    pgn_path = "data/pgn/Carlsen.pgn"
-    lan_path = "data/xlan/carlsen.xlanplus"
 
     min_number_of_moves_per_game = 0
     number_of_games_to_write = -1  # -1 for all games
 
     pgn_to_lan = pgn_to_xlan(
         pgn_path,
-        lan_path,
+        xlan_path,
         min_number_of_moves_per_game=min_number_of_moves_per_game,
         number_of_games_to_write=number_of_games_to_write,
         generate_all_moves=False,
@@ -30,25 +26,16 @@ def pgn_to_xlan():
     pgn_to_lan.convert_pgn_parallel()
 
 
-pgn_to_xlan()
+def remove_duplicates(file_path):
+    from collections import OrderedDict
+
+    with open(file_path, "r") as f:
+        # Using OrderedDict to maintain order and remove duplicates
+        lines = OrderedDict((line, None) for line in f)
+
+    with open(file_path, "w") as f:
+        f.writelines(lines.keys())
 
 
-def check_duplicates():
-    from src.data_preprocessing.check_duplicates_and_common_lines import (
-        check_duplicates_and_common_lines,
-    )
-
-    # TODO what is the validation file?
-    training_file = "./data/xlan/carlsen.xlanplus"
-    validation_file = "./data/xlan/carlsen.xlanplus"
-
-    check_duplicates_and_common_lines(
-        training_file,
-        validation_file,
-        delete_common=False,
-        delete_duplicates_from_file_1=True,
-        delete_duplicates_from_file_2=False,
-    )
-
-
-check_duplicates()
+pgn_to_xlan(pgn_path, lan_path)
+remove_duplicates(training_file)

@@ -8,6 +8,7 @@ import torch
 from transformers import AutoModelForCausalLM
 from src.train import ChessTrainer
 from peft import LoraConfig, get_peft_model
+
 # -
 
 
@@ -35,7 +36,7 @@ LORA_DROPOUT = 0.1
 dataset = "./data/tokens/carlsen_max_768.tok"
 # output_dir = f"/Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/models/"
 output_dir = f"models/"
-model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_Carlsen"
+model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}"
 
 
 def create_model():
