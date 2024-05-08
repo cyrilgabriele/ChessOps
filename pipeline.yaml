@@ -13,3 +13,7 @@ tasks:
     product:
       nb: output/remove_lines.ipynb
       data: data/tokens/carlsen_max_768.tok
+
+  - source: finetune.py
+    product:
+      nb: output/finetune.ipynb
