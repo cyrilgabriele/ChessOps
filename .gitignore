@@ -165,3 +165,7 @@ wandb/
 
 # Ploomber Metadata
 *.metadata
+
+# MacOS
+
+.DS_Store
