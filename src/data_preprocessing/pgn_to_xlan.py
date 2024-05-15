@@ -215,8 +215,9 @@ class pgn_to_xlan:
             `Python Chess Documentation <https://python-chess.readthedocs.io/en/latest/core.html#outcome>`_
         """
         return (
-            board.fullmove_number >= self.min_number_of_moves_per_game
-            and board.outcome() is not None
+            board.fullmove_number
+            >= self.min_number_of_moves_per_game
+            # and board.outcome() is not None
         )
 
     def get_game_positions(self, pgn, num_games):
@@ -248,15 +249,18 @@ class pgn_to_xlan:
         Reads the games from the given positions and converts them to xLAN format.
         """
         buffer = []
-        with open(self.input_path, encoding='latin-1') as pgn:
+        with open(self.input_path, encoding="latin-1") as pgn:
             for pos in positions:
                 pgn.seek(pos)
                 game = chess.pgn.read_game(pgn)
-                '''
+                """
                 if game.headers["Termination"] == "Time forfeit":
                     continue
-                '''
-                if "Termination" in game.headers and game.headers["Termination"] == "Time forfeit":
+                """
+                if (
+                    "Termination" in game.headers
+                    and game.headers["Termination"] == "Time forfeit"
+                ):
                     continue
                 for xlan_str in self.game_to_xlan(game):
                     if xlan_str:
@@ -272,9 +276,12 @@ class pgn_to_xlan:
         start_time = self.start_logging()
         num_processes = multiprocessing.cpu_count()
         writen_games = 0
-        with open(self.input_path, encoding='latin-1') as pgn, open(self.output_path, "w") as outfile:
+        with open(self.input_path, encoding="latin-1") as pgn, open(
+            self.output_path, "w"
+        ) as outfile:
             while True:
                 game_positions = self.get_game_positions(pgn, 100000)
+                print(f"game_positions: {len(game_positions)}")
 
                 if not game_positions:
                     break
@@ -318,7 +325,9 @@ class pgn_to_xlan:
         buffer = []
         games_processed = 0
 
-        with open(self.input_path, encoding='latin-1') as pgn, open(self.output_path, "w") as outfile:
+        with open(self.input_path, encoding="latin-1") as pgn, open(
+            self.output_path, "w"
+        ) as outfile:
             total_file_size = os.path.getsize(self.input_path)
 
             while (self.number_of_games_to_write < 0) or (
@@ -330,16 +339,16 @@ class pgn_to_xlan:
                 if not game:
                     break
 
-                if game.headers["Termination"] == "Time forfeit":
-                    if self.log:
-                        logging.debug(
-                            f"\tgame #{self.number_of_games_processed} is a time forfeit"
-                        )
-                    continue
-                else:
-                    logging.debug(
-                        f"\tgame #{self.number_of_games_processed} is not a time forfeit"
-                    )
+                # if game.headers["Termination"] == "Time forfeit":
+                #     if self.log:
+                #         logging.debug(
+                #             f"\tgame #{self.number_of_games_processed} is a time forfeit"
+                #         )
+                #     continue
+                # else:
+                #     logging.debug(
+                #         f"\tgame #{self.number_of_games_processed} is not a time forfeit"
+                #     )
 
                 self.number_of_games_processed += 1
 
@@ -405,7 +414,7 @@ class pgn_to_xlan:
         Sets up logging for the conversion.
         """
         if self.log:
-            script_name = "PGNToxLANWithGeneratingAllMoves"
+            script_name = "pgn_to_xlan"
             current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             log_filename = f"./logs/{script_name}_{current_time}.log"
 

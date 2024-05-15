@@ -25,9 +25,17 @@ tasks:
       input_file_path: ./data/tokens/{{chess_player}}.tok
       output_file_path: ./data/tokens/{{chess_player}}_max_768.tok
 
-  - source: finetune.py
+  - source: add_bos.py
     product:
-      nb: output/finetune.ipynb
+      nb: output/add_tokens.ipynb
+      data: data/tokens/{{chess_player}}_max_768_bos.tok
     params:
-      chess_player: f'{{chess_player}}'
-      dataset: ./data/tokens/{{chess_player}}_max_768.tok
+      text_file_in: ./data/tokens/{{chess_player}}_max_768.tok
+      text_file_out: ./data/tokens/{{chess_player}}_max_768_bos.tok
+
+  # - source: finetune.py
+  #   product:
+  #     nb: output/finetune.ipynb
+  #   params:
+  #     chess_player: f'{{chess_player}}'
+  #     dataset: ./data/tokens/{{chess_player}}_max_768.tok
