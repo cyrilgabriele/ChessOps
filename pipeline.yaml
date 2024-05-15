@@ -1,0 +1,33 @@
+tasks:
+  - source: pgn_to_xlan.py
+    product:
+      nb: output/pgn_to_xlan.ipynb
+      data: data/xlan/{{chess_player}}.xlanplus
+    params:
+      pgn_path: ./data/pgn/{{chess_player}}.pgn
+      lan_path: ./data/xlan/{{chess_player}}.xlanplus
+      training_file: ./data/xlan/{{chess_player}}.xlanplus
+
+  - source: create_tokens.py
+    product:
+      nb: output/create_tokens.ipynb
+      data: data/tokens/{{chess_player}}.tok
+    params:
+      xLAN_path: ./data/xlan/{{chess_player}}.xlanplus
+      token_path: ./src/tokenizer/xlanplus_tokens.json
+      tokenized_path: ./data/tokens/{{chess_player}}.tok
+
+  - source: remove_lines.py
+    product:
+      nb: output/remove_lines.ipynb
+      data: data/tokens/{{chess_player}}_max_768.tok
+    params:
+      input_file_path: ./data/tokens/{{chess_player}}.tok
+      output_file_path: ./data/tokens/{{chess_player}}_max_768.tok
+
+  - source: finetune.py
+    product:
+      nb: output/finetune.ipynb
+    params:
+      chess_player: f'{{chess_player}}'
+      dataset: ./data/tokens/{{chess_player}}_max_768.tok
