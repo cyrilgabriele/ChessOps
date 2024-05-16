@@ -94,5 +94,6 @@ async def get_move(sequences: Sequences):
     print(f"Predicted token string: {predicted_token_string}")
     print(f"Detokenized output: {detokenized_output}")
     print(f"Type of detokenized output: {type(detokenized_output)}")
+    last_move = detokenized_output.split(" ")[-1]
 
-    return {"move": detokenized_output}
+    return {"move": last_move}
