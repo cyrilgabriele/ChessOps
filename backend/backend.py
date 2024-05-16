@@ -2,64 +2,72 @@ from typing import Union
 from fastapi import FastAPI
 from pydantic import BaseModel
 from src.generate_prediction import generate_prediction
+import src.notation_converter as converter
 import torch
 from fastapi.middleware.cors import CORSMiddleware
 from transformers import AutoModelForCausalLM
-
-
-# Initialize model
-# TODO update according to selected player!! 
-# => and of course do NOT use the base model, instead the finetuned!
-model_name = "Leon-LLM/Leon-Chess-350k-Plus"
-model = AutoModelForCausalLM.from_pretrained(model_name)
-
+import os
+import regex as re
+import chess
 
 
 class Sequences(BaseModel):
     fen: str
-    history: str 
+    history: str
+    model: str  
 
 app = FastAPI()
 
-
-# Set up CORS
+# Set up CORS => simply allow everything
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for simplicity, but you can restrict to specific domains
+    allow_origins=["*"],  
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"], 
+    allow_headers=["*"], 
 )
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
 
 
 @app.post("/get_move")
 async def get_move(sequences: Sequences):
-    # TODO: return here the new move (most likely in UCI?)
-    # TODO: sequences => generatePrediction.py => use only first element of return 
-    token_path = "../src/tokenizer/xlanplus_tokens.json"# input_string = f"{sequences.fen} {sequences.history}"
-    # Example history: "1. d3 c6 2. d4 d6 3. d5 c5"
-    # You need to convert this to "Pd2d3 Pc7c6 Pd2d4 Pd7d6 Pd4d5 Pc6c5"
-    
-    history = sequences.history.strip()
-    moves = history.split()
-    
-    # Reconstruct input string in the format "Pd2d4 Pe7e5"
-    formatted_moves = []
-    for move in moves:
-        if '.' not in move:
-            formatted_moves.append(f"P{move[:2]}{move[2:]}")
+    print("Received payload:", sequences)
 
-    input_string = ' '.join(formatted_moves)
+    '''
+    model_name_map = {
+        # TODO: add the correct models! => they are not working yet...
+        "G. Kasparov": "larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_5E_0.0001LR",
+        "M. Carlsen": "larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_5E_0.0001LR"
+    }
+    '''
+    model_name_map = {
+        "G. Kasparov": "Leon-LLM/Leon-Chess-1M-BOS",
+        "M. Carlsen": "Leon-LLM/Leon-Chess-1M-BOS"
+    }
+
+    model_name = model_name_map.get(sequences.model, "Leon-LLM/Leon-Chess-350k-Plus")
+
+    print(f"model_name: {model_name}")
+
+    # Load the selected model 
+    # TODO: do this outside get_move so it gets loaded during startup 
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+
+    token_path = "./src/tokenizer/xlanplus_tokens.json"
+
+    if not os.path.exists(token_path):
+        return {"error": f"Token file not found: {token_path}"}
+
+    history = sequences.history.strip()
+    history = re.sub(r'\d+\.\s*', '', history)
+    history = history.strip()
+    print(f"history: {history}")
+
+    board = chess.Board()
+
+    history = board.parse_san(history).uci()
+    history = converter.uci_sequence_to_xlan(history)
+    moves_in_xlan_plus = converter.xlan_sequence_to_xlanplus(history)
+    input_string = moves_in_xlan_plus
     
     num_tokens_to_generate = 1  # Number of moves to generate
     temperature = 1.0
@@ -75,18 +83,9 @@ async def get_move(sequences: Sequences):
         seed=seed
     )
 
-    # Debugging output
-    print(f"Input string: {input_string}")
     print(f"Tokenized string: {tokenized_string}")
     print(f"Predicted token string: {predicted_token_string}")
     print(f"Detokenized output: {detokenized_output}")
     print(f"Type of detokenized output: {type(detokenized_output)}")
 
-    # Remove unwanted tokens from the detokenized output
-    valid_tokens = ["a", "b", "c", "d", "e", "f", "g", "h", "1", "2", "3", "4", "5", "6", "7", "8", "P", "R", "N", "B", "Q", "K"]
-    move = "".join([char for char in detokenized_output.strip().split()[-1] if char in valid_tokens])
-    
-    print(f"Predicted move: {move}")
-
-    return {"move": move}
-    # return {"move": sequences.history}
+    return {"move": detokenized_output}

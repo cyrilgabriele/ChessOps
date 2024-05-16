@@ -39,9 +39,9 @@ class MyChess:
         engine_move = """
         function makeComputerMoveFromAPI() {
         var currentFen = game.fen();
-        var history = game.pgn();
-
-        fetch('http://localhost:5000/get_move', {
+        var history = game.pgn();   
+        // console.log("Lars);
+        fetch('http://localhost:8000/get_move', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -114,6 +114,7 @@ class MyChess:
             window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
           }
           updateStatus()
+          console.log("I am here")
           makeComputerMoveFromAPI()
         }
         """

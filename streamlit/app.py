@@ -13,6 +13,11 @@ set_page(title="Chess", page_icon="♟️")
 init_states()
 st.session_state.board_width = 400
 
+# Dropdown to select model
+model_options = ["G. Kasparov", "M. Carlsen"]
+selected_model = st.selectbox("Select Model for Prediction", model_options)
+st.session_state.selected_model = selected_model
+
 # Get the info from current board after the user made the move.
 # The data will return the move, fen and the pgn.
 # The move contains the from sq, to square, and others.
@@ -49,6 +54,7 @@ with cols[0]:
         st.session_state.board_width,
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     )
+
     components.html(
         game.game_board(), height=st.session_state.board_width + 75, scrolling=False
     )
@@ -69,3 +75,16 @@ with cols[1]:
         ]
         # html( "<p>" + '\n\n'.join(records) + "</p>", scrolling=True)
         stx.scrollableTextbox("\n\n".join(records), height=500, border=True)
+
+# Update the fetch request to include the selected model
+def get_prediction(selected_model, fen, history):
+    import requests
+    url = "http://localhost:8000/get_move"
+    payload = {"fen": fen, "history": history, "model": selected_model}
+    response = requests.post(url, json=payload)
+    return response.json()
+
+if data:
+    response = get_prediction(selected_model, st.session_state.curfen, data["pgn"])
+    st.session_state.predicted_move = response["move"]
+    st.info(f"Predicted move: {st.session_state.predicted_move}")
