@@ -11,6 +11,7 @@ import regex as re
 import chess.pgn
 import io
 
+token_path = "./src/tokenizer/xlanplus_tokens.json"
 
 class Sequences(BaseModel):
     fen: str
@@ -29,31 +30,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 model_name_map = {
-    "G. Kasparov": "Leon-LLM/Leon-Chess-1M-BOS",
-    "M. Carlsen": "Leon-LLM/Leon-Chess-1M-BOS",
+    "G. Kasparov": "Leon-LLM/Leon-Chess-350k-Plus",
+    "M. Carlsen": "Leon-LLM/Leon-Chess-350k-Plus"
 }
 
-# Load models and tokenizer during startup
+adapter_map = {
+    "G. Kasparov": "larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_5E_0.0001LR",
+    "M. Carlsen": "larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_5E_0.0001LR",
+}
+
+# Load base models during startup
+base_model_id = "Leon-LLM/Leon-Chess-350k-Plus"
+base_model = AutoModelForCausalLM.from_pretrained(base_model_id)
+
 models = {}
-token_path = "./src/tokenizer/xlanplus_tokens.json"
-
-if not os.path.exists(token_path):
-    raise FileNotFoundError(f"Token file not found: {token_path}")
-
 for name, model_path in model_name_map.items():
     models[name] = AutoModelForCausalLM.from_pretrained(model_path)
+    if name in adapter_map:
+        models[name].load_adapter(adapter_map[name])
 
 
 @app.post("/get_move")
 async def get_move(sequences: Sequences):
     try:
         print("Received payload:", sequences)
-        model_name = model_name_map.get(
-            sequences.model, "Leon-LLM/Leon-Chess-350k-Plus"
-        )
+        model_name = model_name_map.get(sequences.model)
         model = models.get(sequences.model)
+
         if not model:
             raise HTTPException(status_code=404, detail="Model not found")
 
@@ -77,7 +81,9 @@ async def get_move(sequences: Sequences):
         num_tokens_to_generate = 3  # Number of moves to generate
         temperature = 1.0
         seed = None  # Optional: set a seed for reproducibility if needed
+        print(f"input_string: {input_string}")
         print("Generating prediction...")
+
         (
             detokenized_output,
             predicted_token_string,
@@ -96,7 +102,11 @@ async def get_move(sequences: Sequences):
         print(f"Type of detokenized output: {type(detokenized_output)}")
         last_move = detokenized_output.split(" ")[-1]
 
-        return {"move": last_move}
+        print("before return")
+        print(f"we return this: {last_move}")
+        last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
+        print(f"last_move_uci: {last_move_uci}")
+        return {"move": last_move_uci}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
