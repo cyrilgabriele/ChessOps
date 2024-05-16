@@ -76,13 +76,26 @@ with cols[1]:
         # html( "<p>" + '\n\n'.join(records) + "</p>", scrolling=True)
         stx.scrollableTextbox("\n\n".join(records), height=500, border=True)
 
+
 # Update the fetch request to include the selected model
 def get_prediction(selected_model, fen, history):
     import requests
+
     url = "http://localhost:8000/get_move"
     payload = {"fen": fen, "history": history, "model": selected_model}
-    response = requests.post(url, json=payload)
-    return response.json()
+
+    try:
+        response = requests.post(url, json=payload)
+        print("======================================================")
+        print(response)
+        print("======================================================")
+
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return {"error": str(e)}
+
 
 if data:
     response = get_prediction(selected_model, st.session_state.curfen, data["pgn"])
