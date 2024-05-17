@@ -3,7 +3,7 @@
 
 ## Project Description
 
-Welcome to **Chess Master Challenge**, a Streamlit application that allows you to play chess against some of the greatest chess players in history. This was a project of the MLOps course of the Zurich University of Applied Sciences. Currently, you can challenge the legendary Garry Kasparov and the reigning champion Magnus Carlsen. Our goal is to provide an engaging and educational experience for chess enthusiasts of all levels.
+Welcome to **ChessOps**, a Streamlit application that allows you to play chess against some of the greatest chess players in history. This was a project of the MLOps course of the Zurich University of Applied Sciences. Currently, you can challenge the legendary Garry Kasparov and the reigning champion Magnus Carlsen. Our goal is to provide an engaging and educational experience for chess enthusiasts of all levels.
 
 
 ### Features
