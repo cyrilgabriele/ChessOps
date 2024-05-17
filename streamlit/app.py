@@ -98,6 +98,7 @@ def get_prediction(selected_model, fen, history):
 
 
 if data:
-    response = get_prediction(selected_model, st.session_state.curfen, data["pgn"])
+    response = get_prediction(st.session_state.selected_model, st.session_state.curfen, data["pgn"])
+    print(f"response: {response['move']}")
     st.session_state.predicted_move = response["move"]
     st.info(f"Predicted move: {st.session_state.predicted_move}")

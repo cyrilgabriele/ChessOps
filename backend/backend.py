@@ -103,10 +103,11 @@ async def get_move(sequences: Sequences):
         last_move = detokenized_output.split(" ")[-1]
 
         print("before return")
-        # print(f"we return this: {last_move}")
-        # last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
-        # print(f"last_move_uci: {last_move_uci}")
-        return {"move": last_move}
+        print(f"last_move, before xlan_to_uci(): {last_move}")
+        last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
+        last_move_uci = ''.join(last_move_uci)
+        print(f"last_move_uci: {last_move_uci}")
+        return {"move": last_move_uci}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

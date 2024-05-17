@@ -34,156 +34,155 @@ class MyChess:
         """
 
     def game_board(self):
-        sidetomove = self.__sidetomove__()
+      sidetomove = self.__sidetomove__()
 
-        engine_move = """
-        function makeComputerMoveFromAPI() {
-        var currentFen = game.fen();
-        var history = game.pgn();   
-        // console.log("Lars);
-        fetch('http://localhost:8000/get_move', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({fen: currentFen, history: history})
+      engine_move = f"""
+      function makeComputerMoveFromAPI() {{
+      var currentFen = game.fen();
+      var history = game.pgn();   
+      fetch('http://localhost:8000/get_move', {{
+          method: 'POST',
+          headers: {{
+              'Content-Type': 'application/json'
+          }},
+          body: JSON.stringify({{fen: currentFen, history: history, model: '{st.session_state.selected_model}'}})
+      }})
+      .then(response => response.json())
+      .then(data => {{
+          console.log("Move received from API:", data);
+          var move = game.move(data.move, {{sloppy: true}});
+          if (move === null) {{
+              alert('No valid move returned by API(null)');
+              return;
+          }}
+          board.position(game.fen());  // Update the board position
+          if (window.parent) {{
+              console.log("in iframe")
+              window.parent.stBridges.send("my-bridge", {{'move': move, 'fen': game.fen(), 'pgn': game.pgn()}});
+          }} else {{
+              console.log("not in iframe")
+              window.stBridges.send("my-bridge", {{'move': move, 'fen': game.fen(), 'pgn': game.pgn()}});
+          }}
+          updateStatus();  // Update status after the engine move
+      }})
+      .catch(error => console.error('Error fetching move from API:', error));
+      }}
+      """
+
+      script1 = f"""
+      // NOTE: this example uses the chess.js library:
+      // https://github.com/jhlywa/chess.js
+
+      var board = null
+      var game = new Chess('{self.fen}')
+      var $status = $('#status')
+      var $fen = $('#fen')
+      var $pgn = $('#pgn')
+      """
+
+      game_over_ = """
+      // do not pick up pieces if the game is over
+      if (game.game_over()) return false
+      if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+          (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false
+      """
+
+      script2 = f"""
+      function onDragStart (source, piece, position, orientation) {{{game_over_}}}
+      """
+
+      script3 = """
+      function onDrop (source, target) {
+        // see if the move is legal
+        var move = game.move({
+          from: source,
+          to: target,
+          promotion: 'q' // NOTE: always promote to a queen for example simplicity
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Move received from API:", data);
-            var move = game.move(data.move, {sloppy: true});
-            if (move === null) {
-                alert('No valid move returned by API(null)');
-                return;
-            }
-            board.position(game.fen());  // Update the board position
-            if (window.parent) {
-            console.log("in iframe")
-            window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
-          }
-          else {
-            console.log("not in iframe")
-            window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
-          }
-            updateStatus();  // Update status after the engine move
-        })
-        .catch(error => console.error('Error fetching move from API:', error));
+
+        // illegal move
+        if (move === null) return 'snapback'
+
+        if (window.parent) {
+          //console.log("in iframe")
+          window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
         }
-        """
-
-        script1 = f"""
-        // NOTE: this example uses the chess.js library:
-        // https://github.com/jhlywa/chess.js
-
-        var board = null
-        var game = new Chess('{self.fen}')
-        var $status = $('#status')
-        var $fen = $('#fen')
-        var $pgn = $('#pgn')
-        """
-
-        game_over_ = """
-        // do not pick up pieces if the game is over
-        if (game.game_over()) return false
-        if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-            (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false
-        """
-
-        script2 = f"""
-        function onDragStart (source, piece, position, orientation) {{{game_over_}}}
-        """
-
-        script3 = """
-        function onDrop (source, target) {
-          // see if the move is legal
-          var move = game.move({
-            from: source,
-            to: target,
-            promotion: 'q' // NOTE: always promote to a queen for example simplicity
-          })
-
-          // illegal move
-          if (move === null) return 'snapback'
-
-          if (window.parent) {
-            console.log("in iframe")
-            window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
-          }
-          else {
-            console.log("not in iframe")
-            window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
-          }
-          updateStatus()
-          console.log("I am here")
-          makeComputerMoveFromAPI()
+        else {
+          console.log("not in iframe")
+          window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
         }
-        """
-
-        script4 = """
-        // update the board position after the piece snap
-        // for castling, en passant, pawn promotion
-        function onSnapEnd () {
-          board.position(game.fen())
-        }
-
-        function updateStatus () {
-          var status = ''
-
-          var moveColor = 'White'
-          if (game.turn() === 'b') {
-            moveColor = 'Black'
-          }
-
-          if (game.in_checkmate()) {
-            status = 'Game over, ' + moveColor + ' is in checkmate.'
-          }
-
-          // draw?
-          else if (game.in_draw()) {
-            status = 'Game over, drawn position'
-          }
-
-          // game still on
-          else {
-            status = moveColor + ' to move'
-
-            // check?
-            if (game.in_check()) {
-              status += ', ' + moveColor + ' is in check'
-            }
-          }
-          $status.html(status)
-        }
-        """
-
-        config_ = f"""
-        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{{piece}}.png',
-        position: '{self.fen}',
-        orientation: '{sidetomove}',
-        draggable: true,
-        onDragStart: onDragStart,
-        onDrop: onDrop,
-        onSnapEnd: onSnapEnd
-        """
-
-        script5 = f"""
-        var config = {{{config_}}}
-        board = Chessboard('myBoard', config)
-
         updateStatus()
-        """
+        //console.log("I am here")
+        makeComputerMoveFromAPI()
+      }
+      """
 
-        ret = []
+      script4 = """
+      // update the board position after the piece snap
+      // for castling, en passant, pawn promotion
+      function onSnapEnd () {
+        board.position(game.fen())
+      }
 
-        ret.append(self.__header__())
-        ret.append(self.__board_placeholder__())
-        ret.append("<script>")
-        ret.append(engine_move)
-        ret.append(script1)
-        ret.append(script2)
-        ret.append(script3)
-        ret.append(script4)
-        ret.append(script5)
-        ret.append("</script>")
+      function updateStatus () {
+        var status = ''
 
-        return "\n".join(ret)
+        var moveColor = 'White'
+        if (game.turn() === 'b') {
+          moveColor = 'Black'
+        }
+
+        if (game.in_checkmate()) {
+          status = 'Game over, ' + moveColor + ' is in checkmate.'
+        }
+
+        // draw?
+        else if (game.in_draw()) {
+          status = 'Game over, drawn position'
+        }
+
+        // game still on
+        else {
+          status = moveColor + ' to move'
+
+          // check?
+          if (game.in_check()) {
+            status += ', ' + moveColor + ' is in check'
+          }
+        }
+        $status.html(status)
+      }
+      """
+
+      config_ = f"""
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{{piece}}.png',
+      position: '{self.fen}',
+      orientation: '{sidetomove}',
+      draggable: true,
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd
+      """
+
+      script5 = f"""
+      var config = {{{config_}}}
+      board = Chessboard('myBoard', config)
+
+      updateStatus()
+      """
+
+      ret = []
+
+      ret.append(self.__header__())
+      ret.append(self.__board_placeholder__())
+      ret.append("<script>")
+      ret.append(engine_move)
+      ret.append(script1)
+      ret.append(script2)
+      ret.append(script3)
+      ret.append(script4)
+      ret.append(script5)
+      ret.append("</script>")
+
+      return "\n".join(ret)
+
