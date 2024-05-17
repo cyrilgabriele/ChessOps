@@ -6,6 +6,7 @@ import streamlit_scrollable_textbox as stx
 from st_bridge import bridge
 from mychess import MyChess
 from utility import set_page, init_states
+from streamlit_js_eval import streamlit_js_eval
 
 import datetime as dt
 
@@ -43,8 +44,7 @@ if data is not None:
     )
 
 if st.button("start new game"):
-    game = None
-    data = None
+    streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 
 cols = st.columns([1, 1])
