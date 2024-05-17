@@ -55,7 +55,6 @@ for name, model_path in model_name_map.items():
 async def get_move(sequences: Sequences):
     try:
         print("Received payload:", sequences)
-        model_name = model_name_map.get(sequences.model)
         model = models.get(sequences.model)
 
         if not model:
@@ -71,19 +70,13 @@ async def get_move(sequences: Sequences):
             uci_moves.append(board.uci(move))
 
         uci_sequence = " ".join(uci_moves)
-        print(f"uci_moves: {uci_sequence}")
         x_lan_sequence = converter.uci_sequence_to_xlan(uci_sequence)
-        print(f"xlan_moves: {x_lan_sequence}")
         moves_in_xlan_plus = converter.xlan_sequence_to_xlanplus(x_lan_sequence)
-        print(f"xlan_plus_moves: {moves_in_xlan_plus}")
         input_string = moves_in_xlan_plus
 
         num_tokens_to_generate = 3  # Number of moves to generate
         temperature = 1.0
         seed = None  # Optional: set a seed for reproducibility if needed
-        print(f"input_string: {input_string}")
-        print("Generating prediction...")
-
         (
             detokenized_output,
             predicted_token_string,
@@ -96,17 +89,10 @@ async def get_move(sequences: Sequences):
             temperature=temperature,
             seed=seed,
         )
-        print(f"Tokenized string: {tokenized_string}")
-        print(f"Predicted token string: {predicted_token_string}")
-        print(f"Detokenized output: {detokenized_output}")
-        print(f"Type of detokenized output: {type(detokenized_output)}")
+        
         last_move = detokenized_output.split(" ")[-1]
-
-        print("before return")
-        print(f"last_move, before xlan_to_uci(): {last_move}")
         last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
         last_move_uci = ''.join(last_move_uci)
-        print(f"last_move_uci: {last_move_uci}")
         return {"move": last_move_uci}
     except Exception as e:
         print(f"Error: {e}")

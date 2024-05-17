@@ -104,15 +104,12 @@ class MyChess:
         if (move === null) return 'snapback'
 
         if (window.parent) {
-          //console.log("in iframe")
           window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
         }
         else {
-          console.log("not in iframe")
           window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
         }
         updateStatus()
-        //console.log("I am here")
         makeComputerMoveFromAPI()
       }
       """
