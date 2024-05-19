@@ -79,11 +79,8 @@ The MLOps pipeline consists of the following steps (see `pipeline.yaml`):
   - [Magnus Carlsen Lichess Games Dataset](https://www.kaggle.com/datasets/zq1200/magnus-carlsen-lichess-games-dataset)
   - [Garry Kasparov](https://www.pgnmentor.com/players/Kasparov.zip)
 - **Data Cleaning**: The PGN files are cleaned by filtering only the game sequences and removing any metadata or comments. Duplicate games are removed, and games longer than 192 plies are omitted.
-  - Files: `pgn_to_xlan.py`, `remove_lines`
 - **Data Processing**: The PGN files are converted into the format xLANplus (a notation that had been developed specifically for the project work), which is then tokenized using a custom tokenizer.
-  - Files: `pgn_to_xlan.py`, `create_tokens.py`, `add_bos.py`, `src/tokenizer/xlanplus_tokens`
 - **Fine-Tuning**: The [GPT-2 model](https://github.com/openai/gpt-2) is fine-tuned using the [PEFT (Parameter-Efficient Fine-Tuning) library](https://huggingface.co/docs/peft/index) from [Hugging Face](https://huggingface.co/docs/peft/main/en/conceptual_guides/lora), making use of the [LoRA (Low-Rank Adaptation) method](https://arxiv.org/abs/2106.09685), a technique that facilitates the fine-tuning of large models while consuming very little memory. For each of the models, the fine-tuning is performed for 5 and 10 epochs, using an R-value of 128 as well as other hyperparameters (see `finetune.py`).
-  - Files: `finetune.py`
 
 ## Evaluation
 
