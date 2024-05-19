@@ -16,7 +16,7 @@ from peft import LoraConfig, get_peft_model
 BATCH_SIZE = 16  # use the largest batch size that fits on your GPU
 SAVE_STEPS = 2000  # how often to save a checkpoint
 LOGGING_STEPS = 50  # how often to validate model and publish it to Weights & Biases
-EPOCHS = 5  # how many epochs to train for - how many times to go through the dataset
+EPOCHS = 10  # how many epochs to train for - how many times to go through the dataset
 LEARNING_RATE = 0.0001  # learning rate - how fast the model should learn
 SKIP_VALIDATION = True  # skip validation and only save model checkpoints
 WEIGHTS_AND_BIASES_ENABLED = True  # enable logging to Weights & Biases
