@@ -13,6 +13,7 @@ import io
 
 token_path = "./src/tokenizer/xlanplus_tokens.json"
 
+
 class Sequences(BaseModel):
     fen: str
     history: str
@@ -32,12 +33,12 @@ app.add_middleware(
 
 model_name_map = {
     "G. Kasparov": "Leon-LLM/Leon-Chess-350k-Plus",
-    "M. Carlsen": "Leon-LLM/Leon-Chess-350k-Plus"
+    "M. Carlsen": "Leon-LLM/Leon-Chess-350k-Plus",
 }
 
 adapter_map = {
-    "G. Kasparov": "larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_5E_0.0001LR",
-    "M. Carlsen": "larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_5E_0.0001LR",
+    "G. Kasparov": "larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_10E_0.0001LR",
+    "M. Carlsen": "larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_10E_0.0001LR",
 }
 
 # Load base models during startup
@@ -89,10 +90,10 @@ async def get_move(sequences: Sequences):
             temperature=temperature,
             seed=seed,
         )
-        
+
         last_move = detokenized_output.split(" ")[-1]
         last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
-        last_move_uci = ''.join(last_move_uci)
+        last_move_uci = "".join(last_move_uci)
         return {"move": last_move_uci}
     except Exception as e:
         print(f"Error: {e}")
