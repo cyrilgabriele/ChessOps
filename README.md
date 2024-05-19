@@ -18,7 +18,7 @@ Welcome to **ChessOps**, a Streamlit application that allows you to play chess a
 
 Of course, these are bots, programmed to play in a similar way to the real players. The AI models were trained on the playing styles of Kasparov and Carlsen, allowing you to experience the thrill of playing against these chess legends. The application provides an interactive chess board where you can make your moves and see the computer's responses in real-time.
 
-The base model used for fine-tuning was trained by Jerome Maag and Lars Schmid during their project work in the 5th semester of their bachelor's degree studies in computer science at ZHAW. It uses the GPT-2 transformer architecture developed by [OpenAI](https://openai.com/), which has been pretrained using a custom tokenizer on 350k chess games from the [Lichess database](https://database.lichess.org/).
+The base model used for fine-tuning was trained by Jerome Maag and Lars Schmid during their [project work](https://github.zhaw.ch/schmila7/leon-llm) in the 5th semester of their bachelor's degree studies in computer science at ZHAW. It uses the GPT-2 transformer architecture developed by [OpenAI](https://openai.com/), which has been pretrained using a custom tokenizer on 350k chess games from the [Lichess database](https://database.lichess.org/).
 
 The models were then fine-tuned on datasets containing thousands of games played by Kasparov and Carlsen respectively. The MLOps pipeline was implemented using Ploomber, ensuring efficient data processing and model deployment. The backend server was built using FastAPI, providing a robust and scalable API for the application. The front-end was developed using Streamlit, offering a clean and intuitive interface for users to play chess against the trained models.
 
