@@ -65,10 +65,11 @@ To run the application locally, follow these steps:
 - **[GPT-2](https://huggingface.co/docs/transformers/en/model_doc/gpt2)**: Transformer architecture developed by OpenAI, pre-trained specifically for chess.
 - **[Hugging Face](https://huggingface.co/)**: Free and easy-to-use platform for hosting and deploying machine learning models.
 - **[PEFT](https://huggingface.co/docs/peft/index)**: Library for fine-tuning the GPT-2 model on the datasets containing thousands of games played by Kasparov and Carlsen respectively. This project specifically makes use of the [LoRA (Low-Rank Adaptation)](https://arxiv.org/abs/2106.09685) method.
+- **[Pandas](https://pandas.pydata.org/)**: Data manipulation library used for data cleaning and processing.
 - **[Ploomber](https://ploomber.io/)**: Used for the MLOps pipeline, ensuring efficient data processing and model deployment and providing an automated workflow for data cleaning, data processing, and fine-tuning.
-- **[PyTorch](https://pytorch.org/)**: Open-source machine learning library used to train the GPT-2 model.
+- **[PyTorch](https://pytorch.org/)**: Open-source machine learning library used to train and fine-tune the GPT-2 model.
 - **[Python-Chess](https://pypi.org/project/python-chess/)**: Python library for chess, used to implement the chess game logic.
-- **[Streamlit](https://streamlit.io/)**: For the front-end application, providing a seamless and interactive user interface.
+- **[Streamlit](https://streamlit.io/)**: Library for the front-end, providing a seamless and interactive user interface.
 
 ## Pipeline
 
