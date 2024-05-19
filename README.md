@@ -1,19 +1,16 @@
-# ChessOps
-
 ## Table of Contents
 
-- [ChessOps](#chessops)
-  - [Table of Contents](#table-of-contents)
-  - [Project Description](#project-description)
-  - [Features](#features)
-  - [How It Works](#how-it-works)
-  - [Installation](#installation)
-  - [Technology and Frameworks](#technology-and-frameworks)
-  - [Pipeline](#pipeline)
-  - [Evaluation](#evaluation)
-  - [Team Members](#team-members)
-  - [Trained Models](#trained-models)
-  - [Future Work](#future-work)
+- [Table of Contents](#table-of-contents)
+- [Project Description](#project-description)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Installation](#installation)
+- [Technology and Frameworks](#technology-and-frameworks)
+- [Pipeline](#pipeline)
+- [Evaluation](#evaluation)
+- [Team Members](#team-members)
+- [Trained Models](#trained-models)
+- [Future Work](#future-work)
 
 ## Project Description
 
@@ -99,7 +96,7 @@ For each of the models, 1000 games with a length of 125 plies (half-moves in che
 
 ## Team Members
 
-- **[Cyril Gabriele](<(https://github.com/cyrilgabriele/)>)**: Role: MLOps Engineer, responsible for automation and maintenance of pipeline as well as the deployment infrastructure.
+- **[Cyril Gabriele](https://github.com/cyrilgabriele)**: Role: MLOps Engineer, responsible for automation and maintenance of pipeline as well as the deployment infrastructure.
 - **[Jerome Maag](https://github.com/JeromeMaag)**: Role: Data Engineer, responsible for data collection, data cleaning, and data processing.
 - **[Lars Schmid](https://github.com/larscarl)**: Role: Machine Learning Engineer, responsible for training and fine-tuning the AI models as well as evaluating the model performance.
 
