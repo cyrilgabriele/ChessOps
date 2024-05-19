@@ -4,7 +4,6 @@ upstream = None
 
 
 # +
-import torch
 from transformers import AutoModelForCausalLM
 from src.train import ChessTrainer
 from peft import LoraConfig, get_peft_model
@@ -24,7 +23,7 @@ USE_FP16 = True  # enable mixed precision training (GPU only)
 XLANPLUS_ENABLED = True  # use xLanPlus tokenizer
 
 ## MODEL
-PEFT_BASE_MODEL = "Leon-LLM/Leon-Chess-350k-Plus" # base model to be loaded (from hugging face) for fine-tuning
+PEFT_BASE_MODEL = "Leon-LLM/Leon-Chess-350k-Plus"  # base model to be loaded (from hugging face) for fine-tuning
 
 ## CONFIG FOR FINE-TUNING
 R = 128  # lower means faster training, but might underfit because of less complexity (experiments don't show that training time increases, which is rather weird)
@@ -33,13 +32,16 @@ LORA_DROPOUT = 0.1
 
 ## PATHS
 # model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}".replace("'", "")
-model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}_{EPOCHS}E_{LEARNING_RATE}LR".replace("'", "")
+model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}_{EPOCHS}E_{LEARNING_RATE}LR".replace(
+    "'", ""
+)
 output_path = "models/"
+
 
 def create_model(debug=True):
     peft_config = LoraConfig(  # https://huggingface.co/docs/peft/v0.10.0/en/package_reference/lora#peft.LoraConfig
-        task_type="CAUSAL_LM", # This does not need to be changed for our use case
-        inference_mode=False, # don't change this for training, only later for inference
+        task_type="CAUSAL_LM",  # This does not need to be changed for our use case
+        inference_mode=False,  # don't change this for training, only later for inference
         r=R,  # lower means faster training, but might underfit because of less complexity (experiments don't show that training time increases, which is rather weird)
         lora_alpha=LORA_ALPHA,  # scaling factor that adjusts the magnitude of the combined result (balances the pretrained model’s knowledge and the new task-specific adaptation)
         lora_dropout=LORA_DROPOUT,
