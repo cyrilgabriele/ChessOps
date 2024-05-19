@@ -4,7 +4,6 @@ upstream = None
 
 
 # +
-import torch
 from transformers import AutoModelForCausalLM
 from src.train import ChessTrainer
 from peft import LoraConfig, get_peft_model
@@ -13,10 +12,10 @@ from peft import LoraConfig, get_peft_model
 
 
 ## HYPERPARAMETERS
-BATCH_SIZE = 4  # use the largest batch size that fits on your GPU
+BATCH_SIZE = 16  # use the largest batch size that fits on your GPU
 SAVE_STEPS = 2000  # how often to save a checkpoint
 LOGGING_STEPS = 50  # how often to validate model and publish it to Weights & Biases
-EPOCHS = 1  # how many epochs to train for - how many times to go through the dataset
+EPOCHS = 10  # how many epochs to train for - how many times to go through the dataset
 LEARNING_RATE = 0.0001  # learning rate - how fast the model should learn
 SKIP_VALIDATION = True  # skip validation and only save model checkpoints
 WEIGHTS_AND_BIASES_ENABLED = True  # enable logging to Weights & Biases
@@ -24,7 +23,7 @@ USE_FP16 = True  # enable mixed precision training (GPU only)
 XLANPLUS_ENABLED = True  # use xLanPlus tokenizer
 
 ## MODEL
-PEFT_BASE_MODEL = "Leon-LLM/Leon-Chess-350k-Plus"
+PEFT_BASE_MODEL = "Leon-LLM/Leon-Chess-350k-Plus"  # base model to be loaded (from hugging face) for fine-tuning
 
 ## CONFIG FOR FINE-TUNING
 R = 128  # lower means faster training, but might underfit because of less complexity (experiments don't show that training time increases, which is rather weird)
@@ -32,25 +31,28 @@ LORA_ALPHA = 32  # scaling factor that adjusts the magnitude of the combined res
 LORA_DROPOUT = 0.1
 
 ## PATHS
-# dataset = "/Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/data/tokens/carlsen_max_768.tok"
-# dataset = "./data/tokens/carlsen_max_768.tok"
-# output_dir = f"/Users/cyrilgabriele/Documents/School/00_Courses/03_MLOPS/04_Project/ChessOps/models/"
-output_dir = "models/"
-model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}".replace("'", "")
+# model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}".replace("'", "")
+model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}_{EPOCHS}E_{LEARNING_RATE}LR".replace(
+    "'", ""
+)
+output_path = "models/"
 
 
-def create_model():
+def create_model(debug=True):
     peft_config = LoraConfig(  # https://huggingface.co/docs/peft/v0.10.0/en/package_reference/lora#peft.LoraConfig
         task_type="CAUSAL_LM",  # This does not need to be changed for our use case
         inference_mode=False,  # don't change this for training, only later for inference
-        r=R,
-        lora_alpha=LORA_ALPHA,
+        r=R,  # lower means faster training, but might underfit because of less complexity (experiments don't show that training time increases, which is rather weird)
+        lora_alpha=LORA_ALPHA,  # scaling factor that adjusts the magnitude of the combined result (balances the pretrained model’s knowledge and the new task-specific adaptation)
         lora_dropout=LORA_DROPOUT,
     )
 
     peft_model = get_peft_model(
         AutoModelForCausalLM.from_pretrained(PEFT_BASE_MODEL), peft_config
     )
+
+    if debug:
+        print(f"peft_model created: {peft_model}")
 
     return peft_model
 
@@ -77,15 +79,14 @@ def train_model(model, dataset, output_dir, debug=True):
     )
 
     trainer.train()
-    #print("trainer.train()")
 
 
-def push_model_to_hf(model, name):
-    print(f"push_model_to_hf(model={model}, name={name})")
+def push_model_to_hf(model, name, debug=True):
+    if debug:
+        print(f"push_model_to_hf(model={model}, name={name})")
     model.push_to_hub(model_name)
-    # pass
 
 
 model = create_model()
-train_model(model, dataset, output_dir + model_name)
+train_model(model, dataset, output_path + model_name)
 push_model_to_hf(model, model_name)

@@ -33,9 +33,9 @@ tasks:
       text_file_in: ./data/tokens/{{chess_player}}_max_768.tok
       text_file_out: ./data/tokens/{{chess_player}}_max_768_bos.tok
 
-  # - source: finetune.py
-  #   product:
-  #     nb: output/finetune.ipynb
-  #   params:
-  #     chess_player: f'{{chess_player}}'
-  #     dataset: ./data/tokens/{{chess_player}}_max_768.tok
+  - source: finetune.py
+    product:
+      nb: output/finetune.ipynb
+    params:
+      chess_player: f'{{chess_player}}'
+      dataset: ./data/tokens/{{chess_player}}_max_768_bos.tok
