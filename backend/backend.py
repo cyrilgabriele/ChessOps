@@ -1,13 +1,9 @@
-from typing import Union
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from src.generate_prediction import generate_prediction
 import src.notation_converter as converter
-import torch
 from fastapi.middleware.cors import CORSMiddleware
 from transformers import AutoModelForCausalLM
-import os
-import regex as re
 import chess.pgn
 import io
 
