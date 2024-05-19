@@ -38,4 +38,4 @@ tasks:
   #     nb: output/finetune.ipynb
   #   params:
   #     chess_player: f'{{chess_player}}'
-  #     dataset: ./data/tokens/{{chess_player}}_max_768.tok
+  #     dataset: ./data/tokens/{{chess_player}}_max_768_bos.tok
