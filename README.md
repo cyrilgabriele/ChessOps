@@ -50,6 +50,8 @@ To run the application locally, follow these steps:
    ```sh
    pip install -r requirements.txt
    ```
+   - **Optional:** To use CUDA for training/prediction, download the appropriate PyTorch version listed on [PyTorch's official site](https://pytorch.org/get-started/locally/).
+
 4. Run the backend server (FastAPI):
    ```sh
    fastapi dev backend/backend.py
