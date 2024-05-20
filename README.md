@@ -14,7 +14,7 @@
 
 ## Project Description
 
-Welcome to **ChessOps**, a Streamlit application that allows you to play chess against some of the greatest chess players in history. This project was part of the course "Machine Learning Operations (MLOps)" course at [Zurich University of Applied Sciences (ZHAW)](https://www.zhaw.ch/). Currently, you can challenge the legendary Russian chess grandmaster Garry Kasparov and the five-time World Chess Champion Magnus Carlsen. Our goal is to provide an engaging and educational experience for chess enthusiasts of all levels.
+Welcome to **ChessOps**, a Streamlit application that allows you to play chess against some of the greatest chess players in history. This project was part of the course "Machine Learning Operations (MLOps)" course at [Zurich University of Applied Sciences (ZHAW)](https://www.zhaw.ch/). Currently, you can challenge the legendary Russian chess grandmaster Garry Kasparov and the five-time World Chess Champion Magnus Carlsen. Our goal is to provide an engaging, entertaining and educational experience for chess enthusiasts of all levels.
 
 Of course, these are bots, programmed to play in a similar way to the real players. The AI models were trained on the playing styles of Kasparov and Carlsen, allowing you to experience the thrill of playing against these chess legends. The application provides an interactive chess board where you can make your moves and see the computer's responses in real-time.
 
