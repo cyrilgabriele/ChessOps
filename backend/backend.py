@@ -58,18 +58,22 @@ async def get_move(sequences: Sequences):
             raise HTTPException(status_code=404, detail="Model not found")
 
         pgn = io.StringIO(sequences.history)
-        game = chess.pgn.read_game(pgn)
+        # if history longer then one, then it is a pgn
+        if len(sequences.history) > 1:
+            game = chess.pgn.read_game(pgn)
 
-        uci_moves = []
-        board = game.board()
-        for move in game.mainline_moves():
-            board.push(move)
-            uci_moves.append(board.uci(move))
+            uci_moves = []
+            board = game.board()
+            for move in game.mainline_moves():
+                board.push(move)
+                uci_moves.append(board.uci(move))
 
-        uci_sequence = " ".join(uci_moves)
-        x_lan_sequence = converter.uci_sequence_to_xlan(uci_sequence)
-        moves_in_xlan_plus = converter.xlan_sequence_to_xlanplus(x_lan_sequence)
-        input_string = moves_in_xlan_plus
+            uci_sequence = " ".join(uci_moves)
+            x_lan_sequence = converter.uci_sequence_to_xlan(uci_sequence)
+            moves_in_xlan_plus = converter.xlan_sequence_to_xlanplus(x_lan_sequence)
+            input_string = moves_in_xlan_plus
+        else:
+            input_string = ["75"]
 
         num_tokens_to_generate = 3  # Number of moves to generate
         temperature = 0.01
@@ -86,10 +90,16 @@ async def get_move(sequences: Sequences):
             temperature=temperature,
             seed=seed,
         )
+        if len(sequences.history) > 1:
+            last_move = detokenized_output.split(" ")[-1]
+            last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
+            last_move_uci = "".join(last_move_uci)
+        else:
+            last_move = detokenized_output
+            board = chess.Board(sequences.fen)
+            last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
+            last_move_uci = "".join(last_move_uci)
 
-        last_move = detokenized_output.split(" ")[-1]
-        last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
-        last_move_uci = "".join(last_move_uci)
         print(f"Generated move: {last_move_uci}")
         return {"move": last_move_uci}
     except Exception as e:
