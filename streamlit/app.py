@@ -16,7 +16,7 @@ st.session_state.board_width = 400
 
 # Dropdown to select model
 side_options = ["white", "black"]
-model_options = ["G. Kasparov", "M. Carlsen"]
+model_options = ["G. Kasparov", "M. Carlsen", "stockfish"]
 selected_model = st.selectbox("Select Model for Prediction", model_options)
 selected_side = st.selectbox("Select Side to Play", side_options)
 st.session_state.selected_model = selected_model

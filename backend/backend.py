@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from transformers import AutoModelForCausalLM
+import chess
+import chess.engine
 import chess.pgn
 import io
 
@@ -47,21 +49,43 @@ class Sequences(BaseModel):
     model: str
 
 
+engine_path = "./backend/stockfish/stockfish-windows-x86-64-avx2.exe"
+engine = chess.engine.SimpleEngine.popen_uci(engine_path)
+
+
 @app.post("/get_move")
 async def get_move(sequences: Sequences):
+    print("Sequence:", sequences)
+    if sequences.model == "stockfish":
+        return await get_stockfish_move(sequences.fen)
+    else:
+        return await get_player_move(sequences)
+
+
+async def get_player_move(sequences):
     model = models.get(sequences.model)
-    print("Received payload:", sequences)
     if not model:
         raise HTTPException(status_code=404, detail="Model not found")
 
     try:
-        input_string = process_game_history(sequences.history, sequences.fen)
         board = chess.Board(sequences.fen)
+        input_string = process_game_history(sequences.history, sequences.fen)
         prediction = generate_move(input_string, model)
         last_move_uci = process_prediction(prediction, board)
+        print("GPT-3 move:", last_move_uci)
         return {"move": last_move_uci}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+async def get_stockfish_move(fen):
+    board = chess.Board(fen)
+    with engine.analysis(board, multipv=1) as analysis:
+        for info in analysis:
+            if info.get("pv"):
+                move = info["pv"][0]
+                break
+    return {"move": move.uci()}
 
 
 def process_game_history(history, fen):

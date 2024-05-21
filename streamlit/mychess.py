@@ -38,35 +38,34 @@ class MyChess:
         sidetomove = self.__sidetomove__()
 
         engine_move = f"""
-      function makeComputerMoveFromAPI() {{
-      var currentFen = game.fen();
-      var history = game.pgn();   
-      fetch('http://localhost:8000/get_move', {{
-          method: 'POST',
-          headers: {{
-              'Content-Type': 'application/json'
-          }},
-          body: JSON.stringify({{fen: currentFen, history: history, model: '{st.session_state.selected_model}'}})
-      }})
-      .then(response => response.json())
-      .then(data => {{
-          console.log("Move received from API:", data);
-          var move = game.move(data.move, {{sloppy: true}});
-          if (move === null) {{
-              alert('No valid move returned by API(null)');
-              return;
-          }}
-          board.position(game.fen());  // Update the board position
-          if (window.parent) {{
-              console.log("in iframe")
-              window.parent.stBridges.send("my-bridge", {{'move': move, 'fen': game.fen(), 'pgn': game.pgn()}});
-          }} else {{
-              console.log("not in iframe")
-              window.stBridges.send("my-bridge", {{'move': move, 'fen': game.fen(), 'pgn': game.pgn()}});
-          }}
-          updateStatus();  // Update status after the engine move
-      }})
-      .catch(error => console.error('Error fetching move from API:', error));
+      function makeComputerMoveFromAPI(retryWithStockfish = false) {{
+          var currentFen = game.fen();
+          var history = game.pgn();
+          var playerModel = retryWithStockfish ? 'stockfish' : '{st.session_state.selected_model}';
+          
+          fetch('http://localhost:8000/get_move', {{
+              method: 'POST',
+              headers: {{
+                  'Content-Type': 'application/json'
+              }},
+              body: JSON.stringify({{fen: currentFen, history: history, model: playerModel}})
+          }})
+          .then(response => response.json())
+          .then(data => {{
+              var move = game.move(data.move, {{sloppy: true}});
+              if (move === null) {{
+                  if (!retryWithStockfish) {{
+                      console.log('Invalid move received, trying Stockfish...');
+                      makeComputerMoveFromAPI(true);
+                  }} else {{
+                      alert('Invalid move received from Stockfish.');
+                  }}
+                  return;
+              }}
+              board.position(game.fen());  // Update the board position
+              updateStatus();  // Update status after the engine move
+          }})
+          .catch(error => console.error('Error fetching move from API:', error));
       }}
       """
 
@@ -155,7 +154,7 @@ class MyChess:
         config_ = f"""
       pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{{piece}}.png',
       position: '{self.fen}',
-      orientation: '{sidetomove}',
+      orientation: '{st.session_state.side_choice}',
       draggable: true,
       onDragStart: onDragStart,
       onDrop: onDrop,
@@ -168,7 +167,6 @@ class MyChess:
 
       updateStatus()
 
-      // Check if the player side is black and call makeComputerMoveFromAPI if it is
       if ('{self.player_side}' === 'black') {{
           makeComputerMoveFromAPI();
       }}
@@ -180,6 +178,7 @@ class MyChess:
         ret.append(self.__board_placeholder__())
         ret.append("<script>")
         ret.append(engine_move)
+
         ret.append(script1)
         ret.append(script2)
         ret.append(script3)
