@@ -4,9 +4,10 @@ import chess.engine
 
 
 class MyChess:
-    def __init__(self, width, fen):
+    def __init__(self, width, fen, player_side="white"):
         self.width = width
         self.fen = fen
+        self.player_side = player_side
 
     def __header__(self):
         return """
@@ -34,9 +35,9 @@ class MyChess:
         """
 
     def game_board(self):
-      sidetomove = self.__sidetomove__()
+        sidetomove = self.__sidetomove__()
 
-      engine_move = f"""
+        engine_move = f"""
       function makeComputerMoveFromAPI() {{
       var currentFen = game.fen();
       var history = game.pgn();   
@@ -69,7 +70,7 @@ class MyChess:
       }}
       """
 
-      script1 = f"""
+        script1 = f"""
       // NOTE: this example uses the chess.js library:
       // https://github.com/jhlywa/chess.js
 
@@ -80,18 +81,18 @@ class MyChess:
       var $pgn = $('#pgn')
       """
 
-      game_over_ = """
+        game_over_ = """
       // do not pick up pieces if the game is over
       if (game.game_over()) return false
       if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
           (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false
       """
 
-      script2 = f"""
+        script2 = f"""
       function onDragStart (source, piece, position, orientation) {{{game_over_}}}
       """
 
-      script3 = """
+        script3 = """
       function onDrop (source, target) {
         // see if the move is legal
         var move = game.move({
@@ -114,7 +115,7 @@ class MyChess:
       }
       """
 
-      script4 = """
+        script4 = """
       // update the board position after the piece snap
       // for castling, en passant, pawn promotion
       function onSnapEnd () {
@@ -151,7 +152,7 @@ class MyChess:
       }
       """
 
-      config_ = f"""
+        config_ = f"""
       pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{{piece}}.png',
       position: '{self.fen}',
       orientation: '{sidetomove}',
@@ -161,25 +162,29 @@ class MyChess:
       onSnapEnd: onSnapEnd
       """
 
-      script5 = f"""
+        sscript5 = f"""
       var config = {{{config_}}}
       board = Chessboard('myBoard', config)
 
       updateStatus()
+
+      // Check if the player side is black and call makeComputerMoveFromAPI if it is
+      if ('{self.player_side}' === 'black') {{
+          makeComputerMoveFromAPI();
+      }}
       """
 
-      ret = []
+        ret = []
 
-      ret.append(self.__header__())
-      ret.append(self.__board_placeholder__())
-      ret.append("<script>")
-      ret.append(engine_move)
-      ret.append(script1)
-      ret.append(script2)
-      ret.append(script3)
-      ret.append(script4)
-      ret.append(script5)
-      ret.append("</script>")
+        ret.append(self.__header__())
+        ret.append(self.__board_placeholder__())
+        ret.append("<script>")
+        ret.append(engine_move)
+        ret.append(script1)
+        ret.append(script2)
+        ret.append(script3)
+        ret.append(script4)
+        ret.append(script5)
+        ret.append("</script>")
 
-      return "\n".join(ret)
-
+        return "\n".join(ret)
