@@ -162,7 +162,7 @@ class MyChess:
       onSnapEnd: onSnapEnd
       """
 
-        sscript5 = f"""
+        script5 = f"""
       var config = {{{config_}}}
       board = Chessboard('myBoard', config)
 
