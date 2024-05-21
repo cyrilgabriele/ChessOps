@@ -50,11 +50,13 @@ class Sequences(BaseModel):
 @app.post("/get_move")
 async def get_move(sequences: Sequences):
     model = models.get(sequences.model)
+    print("Received payload:", sequences)
     if not model:
         raise HTTPException(status_code=404, detail="Model not found")
 
     try:
-        board, input_string = process_game_history(sequences.history, sequences.fen)
+        input_string = process_game_history(sequences.history, sequences.fen)
+        board = chess.Board(sequences.fen)
         prediction = generate_move(input_string, model)
         last_move_uci = process_prediction(prediction, board)
         return {"move": last_move_uci}
@@ -68,7 +70,7 @@ def process_game_history(history, fen):
         board = game.board()
         uci_moves = [board.uci(move) for move in game.mainline_moves()]
         x_lan_sequence = converter.uci_sequence_to_xlan(" ".join(uci_moves))
-        return board, converter.xlan_sequence_to_xlanplus(x_lan_sequence)
+        return converter.xlan_sequence_to_xlanplus(x_lan_sequence)
     else:
         return chess.Board(fen), ["75"]
 
@@ -85,4 +87,4 @@ def generate_move(input_string, model):
 
 def process_prediction(prediction, board):
     last_move = prediction.split(" ")[-1]
-    return "".join(converter.xlanplus_move_to_uci(board, last_move))
+    return "".join(converter.xlanplus_move_to_uci(board, last_move)[0])
