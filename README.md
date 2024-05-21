@@ -47,9 +47,11 @@ To run the application locally, follow these steps:
    cd ChessOps
    ```
 3. Install the required dependencies:
+
    ```sh
    pip install -r requirements.txt
    ```
+
    - **Optional:** To use CUDA for training/prediction, download the appropriate PyTorch version listed on [PyTorch's official site](https://pytorch.org/get-started/locally/).
 
 4. Run the backend server (FastAPI):
@@ -102,14 +104,14 @@ For each of the models, 1000 games with a maximum length of 125 plies (half-move
 
 ## Trained Models
 
-- **Base Model**:
-  - [GPT-2 Architecture pre-trained on 350k games from the Lichess database](https://huggingface.co/Leon-LLM/Leon-Chess-350k-BOS)
-- **Garry Kasparov**:
-  - [Kasparov-Model fine-tuned for 5 Epochs on 2122 games](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_5E_0.0001LR)
-  - [Kasparov-Model fine-tuned for 10 Epochs on 2122 games](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_10E_0.0001LR)
-- **Magnus Carlsen**:
-  - [Carlsen-Model fine-tuned for 5 Epochs on 5597 games](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_5E_0.0001LR)
-  - [Carlsen-Model fine-tuned for 10 Epochs on 5597 games](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_10E_0.0001LR)
+- **Base Model** (350k games):
+  - [GPT-2 Architecture pre-trained on games from the Lichess database played in September 2023](https://huggingface.co/Leon-LLM/Leon-Chess-350k-BOS)
+- **Garry Kasparov** (2122 games):
+  - [Kasparov-Model fine-tuned for 5 Epochs](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_5E_0.0001LR)
+  - [Kasparov-Model fine-tuned for 10 Epochs](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_kasparov_10E_0.0001LR)
+- **Magnus Carlsen** (5597 games):
+  - [Carlsen-Model fine-tuned for 5 Epochs](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_5E_0.0001LR)
+  - [Carlsen-Model fine-tuned for 10 Epochs](https://huggingface.co/larscarl/Leon-Chess-350k-Plus_LoRA_carlsen_10E_0.0001LR)
 
 ## Future Work
 
