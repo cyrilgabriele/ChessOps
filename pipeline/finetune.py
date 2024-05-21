@@ -7,8 +7,21 @@ upstream = None
 from transformers import AutoModelForCausalLM
 from src.train import ChessTrainer
 from peft import LoraConfig, get_peft_model
+from dotenv import load_dotenv
+import os
 
-# -
+load_dotenv()
+
+# Extract environment variables
+WANDB_TOKEN = os.getenv("WEIGHTS_AND_BIASES_TOKEN")
+WANDB_PROJECT = os.getenv("WEIGHTS_AND_BIASES_PROJECT_NAME")
+HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
+HUGGINGFACE_PROJECT = os.getenv("HUGGINGFACE_PROJECT_NAME")
+WANDB_ACTIVE = os.getenv("WEIGHTS_AND_BIASES_ACTIVE") == "True"
+HUGGINGFACE_ACTIVE = os.getenv("HUGGINGFACE_ACTIVE") == "True"
+
+if WANDB_ACTIVE:
+    os.environ["WANDB_API_KEY"] = WANDB_TOKEN
 
 
 ## HYPERPARAMETERS
@@ -18,7 +31,7 @@ LOGGING_STEPS = 50  # how often to validate model and publish it to Weights & Bi
 EPOCHS = 10  # how many epochs to train for - how many times to go through the dataset
 LEARNING_RATE = 0.0001  # learning rate - how fast the model should learn
 SKIP_VALIDATION = True  # skip validation and only save model checkpoints
-WEIGHTS_AND_BIASES_ENABLED = True  # enable logging to Weights & Biases
+WEIGHTS_AND_BIASES_ENABLED = WANDB_ACTIVE  # enable logging to Weights & Biases
 USE_FP16 = True  # enable mixed precision training (GPU only)
 XLANPLUS_ENABLED = True  # use xLanPlus tokenizer
 
@@ -32,7 +45,7 @@ LORA_DROPOUT = 0.1
 
 ## PATHS
 # model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}".replace("'", "")
-model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}_{EPOCHS}E_{LEARNING_RATE}LR".replace(
+model_name = f"{WANDB_PROJECT}_LoRA_{chess_player}_{EPOCHS}E_{LEARNING_RATE}LR".replace(
     "'", ""
 )
 output_path = "pipeline/models/"
@@ -48,7 +61,8 @@ def create_model(debug=True):
     )
 
     peft_model = get_peft_model(
-        AutoModelForCausalLM.from_pretrained(PEFT_BASE_MODEL), peft_config
+        AutoModelForCausalLM.from_pretrained(PEFT_BASE_MODEL, token=HUGGINGFACE_TOKEN),
+        peft_config,
     )
 
     if debug:
@@ -76,17 +90,24 @@ def train_model(model, dataset, output_dir, debug=True):
         use_FP16=USE_FP16,
         notation="xLANplus" if XLANPLUS_ENABLED else "xLAN",
         peft=model,
+        wandb_project=WANDB_PROJECT,
     )
 
     trainer.train()
 
 
-def push_model_to_hf(model, name, debug=True):
+def push_model_to_hf(
+    model,
+    name,
+    token,
+    debug=True,
+):
     if debug:
         print(f"push_model_to_hf(model={model}, name={name})")
-    model.push_to_hub(model_name)
+    model.push_to_hub(model_name, token=token)
 
 
 model = create_model()
 train_model(model, dataset, output_path + model_name)
-push_model_to_hf(model, model_name)
+if HUGGINGFACE_ACTIVE:
+    push_model_to_hf(model, model_name, HUGGINGFACE_TOKEN)

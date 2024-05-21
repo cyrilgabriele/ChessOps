@@ -2,7 +2,7 @@ tasks:
   - source: ./pipeline/pgn_to_xlan.py
     product:
       nb: ./pipeline/output/pgn_to_xlan.ipynb
-      data: ./pipeline/data_artifacts/{{chess_player}}.xlanplus
+      data: ./pipeline/data_artifacts/xlan/{{chess_player}}.xlanplus
     params:
       pgn_path: ./pipeline/input_data/{{chess_player}}.pgn
       lan_path: ./pipeline/data_artifacts/xlan/{{chess_player}}.xlanplus
