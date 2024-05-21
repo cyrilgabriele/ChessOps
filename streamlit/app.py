@@ -15,9 +15,12 @@ init_states()
 st.session_state.board_width = 400
 
 # Dropdown to select model
+side_options = ["white", "black"]
 model_options = ["G. Kasparov", "M. Carlsen"]
 selected_model = st.selectbox("Select Model for Prediction", model_options)
+selected_side = st.selectbox("Select Side to Play", side_options)
 st.session_state.selected_model = selected_model
+st.session_state.side_choice = selected_side
 
 # Get the info from current board after the user made the move.
 # The data will return the move, fen and the pgn.
@@ -48,11 +51,11 @@ if st.button("start new game"):
 
 
 cols = st.columns([1, 1])
-
 with cols[0]:
     game = MyChess(
         st.session_state.board_width,
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        player_side=selected_side,
     )
 
     components.html(
@@ -77,28 +80,28 @@ with cols[1]:
         stx.scrollableTextbox("\n\n".join(records), height=500, border=True)
 
 
-# Update the fetch request to include the selected model
-def get_prediction(selected_model, fen, history):
-    import requests
+# # Update the fetch request to include the selected model
+# def get_prediction(selected_model, fen, history):
+#     import requests
 
-    url = "http://localhost:8000/get_move"
-    payload = {"fen": fen, "history": history, "model": selected_model}
+#     url = "http://localhost:8000/get_move"
+#     payload = {"fen": fen, "history": history, "model": selected_model}
 
-    try:
-        response = requests.post(url, json=payload)
-        print("======================================================")
-        print(response)
-        print("======================================================")
-
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
-        return {"error": str(e)}
+#     try:
+#         response = requests.post(url, json=payload)
+#         print("======================================================")
+#         print(response)
+#         response.raise_for_status()
+#         return response.json()
+#     except requests.exceptions.RequestException as e:
+#         print(f"Request failed: {e}")
+#         return {"error": str(e)}
 
 
-if data:
-    response = get_prediction(st.session_state.selected_model, st.session_state.curfen, data["pgn"])
-    print(f"response: {response['move']}")
-    st.session_state.predicted_move = response["move"]
-    st.info(f"Predicted move: {st.session_state.predicted_move}")
+# if data:
+#     response = get_prediction(
+#         st.session_state.selected_model, st.session_state.curfen, data["pgn"]
+#     )
+#     print(f"response: {response['move']}")
+#     st.session_state.predicted_move = response["move"]
+#     st.info(f"Predicted move: {st.session_state.predicted_move}")
