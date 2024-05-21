@@ -35,7 +35,7 @@ LORA_DROPOUT = 0.1
 model_name = f"{PEFT_BASE_MODEL.split('/')[1]}_LoRA_{chess_player}_{EPOCHS}E_{LEARNING_RATE}LR".replace(
     "'", ""
 )
-output_path = "models/"
+output_path = "pipeline/models/"
 
 
 def create_model(debug=True):
