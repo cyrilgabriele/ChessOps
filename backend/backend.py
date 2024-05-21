@@ -72,12 +72,12 @@ async def get_move(sequences: Sequences):
         input_string = moves_in_xlan_plus
 
         num_tokens_to_generate = 3  # Number of moves to generate
-        temperature = 1.0
+        temperature = 0.01
         seed = None  # Optional: set a seed for reproducibility if needed
         (
             detokenized_output,
-            predicted_token_string,
-            tokenized_string,
+            _,
+            _,
         ) = generate_prediction(
             input_string,
             num_tokens_to_generate=num_tokens_to_generate,
@@ -90,6 +90,7 @@ async def get_move(sequences: Sequences):
         last_move = detokenized_output.split(" ")[-1]
         last_move_uci = converter.xlanplus_move_to_uci(board, last_move)
         last_move_uci = "".join(last_move_uci)
+        print(f"Generated move: {last_move_uci}")
         return {"move": last_move_uci}
     except Exception as e:
         print(f"Error: {e}")

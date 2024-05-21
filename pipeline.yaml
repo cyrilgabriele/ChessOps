@@ -1,41 +1,41 @@
 tasks:
-  - source: pgn_to_xlan.py
+  - source: ./pipeline/pgn_to_xlan.py
     product:
-      nb: output/pgn_to_xlan.ipynb
-      data: data/xlan/{{chess_player}}.xlanplus
+      nb: ./pipeline/output/pgn_to_xlan.ipynb
+      data: ./pipeline/data_artifacts/{{chess_player}}.xlanplus
     params:
-      pgn_path: ./data/pgn/{{chess_player}}.pgn
-      lan_path: ./data/xlan/{{chess_player}}.xlanplus
-      training_file: ./data/xlan/{{chess_player}}.xlanplus
+      pgn_path: ./pipeline/input_data/{{chess_player}}.pgn
+      lan_path: ./pipeline/data_artifacts/xlan/{{chess_player}}.xlanplus
+      training_file: ./pipeline/data_artifacts/xlan/{{chess_player}}.xlanplus
 
-  - source: create_tokens.py
+  - source: ./pipeline/create_tokens.py
     product:
-      nb: output/create_tokens.ipynb
-      data: data/tokens/{{chess_player}}.tok
+      nb: ./pipeline/output/create_tokens.ipynb
+      data: ./pipeline/data_artifacts/tokens/{{chess_player}}.tok
     params:
-      xLAN_path: ./data/xlan/{{chess_player}}.xlanplus
+      xLAN_path: ./pipeline/data_artifacts/xlan/{{chess_player}}.xlanplus
       token_path: ./src/tokenizer/xlanplus_tokens.json
-      tokenized_path: ./data/tokens/{{chess_player}}.tok
+      tokenized_path: ./pipeline/data_artifacts/tokens/{{chess_player}}.tok
 
-  - source: remove_lines.py
+  - source: ./pipeline/remove_lines.py
     product:
-      nb: output/remove_lines.ipynb
-      data: data/tokens/{{chess_player}}_max_768.tok
+      nb: ./pipeline/output/remove_lines.ipynb
+      data: ./pipeline/data_artifacts/tokens/{{chess_player}}_max_768.tok
     params:
-      input_file_path: ./data/tokens/{{chess_player}}.tok
-      output_file_path: ./data/tokens/{{chess_player}}_max_768.tok
+      input_file_path: ./pipeline/data_artifacts/tokens/{{chess_player}}.tok
+      output_file_path: ./pipeline/data_artifacts/tokens/{{chess_player}}_max_768.tok
 
-  - source: add_bos.py
+  - source: ./pipeline/add_bos.py
     product:
-      nb: output/add_tokens.ipynb
-      data: data/tokens/{{chess_player}}_max_768_bos.tok
+      nb: ./pipeline/output/add_tokens.ipynb
+      data: ./pipeline/data_artifacts/tokens/{{chess_player}}_max_768_bos.tok
     params:
-      text_file_in: ./data/tokens/{{chess_player}}_max_768.tok
-      text_file_out: ./data/tokens/{{chess_player}}_max_768_bos.tok
+      text_file_in: ./pipeline/data_artifacts/tokens/{{chess_player}}_max_768.tok
+      text_file_out: ./pipeline/data_artifacts/tokens/{{chess_player}}_max_768_bos.tok
 
-  - source: finetune.py
+  - source: ./pipeline/finetune.py
     product:
-      nb: output/finetune.ipynb
+      nb: ./pipeline/output/finetune.ipynb
     params:
-      chess_player: f'{{chess_player}}'
-      dataset: ./data/tokens/{{chess_player}}_max_768_bos.tok
+      chess_player: '{{chess_player}}'
+      dataset: ./pipeline/data_artifacts/tokens/{{chess_player}}_max_768_bos.tok
