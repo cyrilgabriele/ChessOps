@@ -72,7 +72,7 @@ async def get_player_move(sequences):
         input_string = process_game_history(sequences.history, sequences.fen)
         prediction = generate_move(input_string, model)
         last_move_uci = process_prediction(prediction, board)
-        print("GPT-3 move:", last_move_uci)
+        print("GPT move:", last_move_uci)
         return {"move": last_move_uci}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
