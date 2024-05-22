@@ -6,6 +6,7 @@ import chess
 import chess.engine
 import chess.pgn
 import io
+import platform
 
 from src.generate_prediction import generate_prediction
 import src.notation_converter as converter
@@ -49,7 +50,18 @@ class Sequences(BaseModel):
     model: str
 
 
-engine_path = "./backend/stockfish/stockfish-windows-x86-64-avx2.exe"
+os_name = platform.system()
+
+if os_name == "Windows":
+    engine_path = "./backend/stockfish/stockfish-windows-x86-64-avx2.exe"
+elif os_name == "Darwin":
+    engine_path = "./backend/stockfish/stockfish-macOS"
+else:
+    print(f"You are using another operating system: {os_name}")
+    print(
+        f"Please download the Stockfish binary for {os_name} from https://stockfishchess.org/download/"
+    )
+
 engine = chess.engine.SimpleEngine.popen_uci(engine_path)
 
 
