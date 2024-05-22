@@ -50,6 +50,7 @@ class Sequences(BaseModel):
     model: str
 
 
+# Initialize Stockfish engine according to OS
 os_name = platform.system()
 
 if os_name == "Windows":
