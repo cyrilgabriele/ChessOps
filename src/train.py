@@ -67,6 +67,7 @@ class ChessTrainer:
         use_FP16: bool = True,
         notation: str = "xLANplus",
         peft: PeftModel = None,
+        wandb_project: str = "ChessOps",
     ) -> None:
         self.batch_size = batch_size
         self.learning_rate = learning_rate
@@ -81,6 +82,7 @@ class ChessTrainer:
         self.use_FP16 = use_FP16
         self.notation = notation
         self.peft = peft
+        self.wand_project_name = wandb_project
 
         self.notation_config = self.load_notation_config()
 
@@ -103,7 +105,7 @@ class ChessTrainer:
         self.TOKEN_PATH = self.notation_config["token_file"]  # Path to the token file.
 
         self.model_name = output_dir.split("/")[-2]
-        self.wand_project_name = "ChessOps"
+        self.wand_project_name = self.wand_project_name
         self.logging_dir = "./logs"
         self.report_to = "none"
 

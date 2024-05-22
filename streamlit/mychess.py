@@ -4,9 +4,10 @@ import chess.engine
 
 
 class MyChess:
-    def __init__(self, width, fen):
+    def __init__(self, width, fen, player_side="white"):
         self.width = width
         self.fen = fen
+        self.player_side = player_side
 
     def __header__(self):
         return """
@@ -34,42 +35,41 @@ class MyChess:
         """
 
     def game_board(self):
-      sidetomove = self.__sidetomove__()
+        sidetomove = self.__sidetomove__()
 
-      engine_move = f"""
-      function makeComputerMoveFromAPI() {{
-      var currentFen = game.fen();
-      var history = game.pgn();   
-      fetch('http://localhost:8000/get_move', {{
-          method: 'POST',
-          headers: {{
-              'Content-Type': 'application/json'
-          }},
-          body: JSON.stringify({{fen: currentFen, history: history, model: '{st.session_state.selected_model}'}})
-      }})
-      .then(response => response.json())
-      .then(data => {{
-          console.log("Move received from API:", data);
-          var move = game.move(data.move, {{sloppy: true}});
-          if (move === null) {{
-              alert('No valid move returned by API(null)');
-              return;
-          }}
-          board.position(game.fen());  // Update the board position
-          if (window.parent) {{
-              console.log("in iframe")
-              window.parent.stBridges.send("my-bridge", {{'move': move, 'fen': game.fen(), 'pgn': game.pgn()}});
-          }} else {{
-              console.log("not in iframe")
-              window.stBridges.send("my-bridge", {{'move': move, 'fen': game.fen(), 'pgn': game.pgn()}});
-          }}
-          updateStatus();  // Update status after the engine move
-      }})
-      .catch(error => console.error('Error fetching move from API:', error));
+        engine_move = f"""
+      function makeComputerMoveFromAPI(retryWithStockfish = false) {{
+          var currentFen = game.fen();
+          var history = game.pgn();
+          var playerModel = retryWithStockfish ? 'stockfish' : '{st.session_state.selected_model}';
+          
+          fetch('http://localhost:8000/get_move', {{
+              method: 'POST',
+              headers: {{
+                  'Content-Type': 'application/json'
+              }},
+              body: JSON.stringify({{fen: currentFen, history: history, model: playerModel}})
+          }})
+          .then(response => response.json())
+          .then(data => {{
+              var move = game.move(data.move, {{sloppy: true}});
+              if (move === null) {{
+                  if (!retryWithStockfish) {{
+                      console.log('Invalid move received, trying Stockfish...');
+                      makeComputerMoveFromAPI(true);
+                  }} else {{
+                      alert('Invalid move received from Stockfish.');
+                  }}
+                  return;
+              }}
+              board.position(game.fen());  // Update the board position
+              updateStatus();  // Update status after the engine move
+          }})
+          .catch(error => console.error('Error fetching move from API:', error));
       }}
       """
 
-      script1 = f"""
+        script1 = f"""
       // NOTE: this example uses the chess.js library:
       // https://github.com/jhlywa/chess.js
 
@@ -80,18 +80,18 @@ class MyChess:
       var $pgn = $('#pgn')
       """
 
-      game_over_ = """
+        game_over_ = """
       // do not pick up pieces if the game is over
       if (game.game_over()) return false
       if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
           (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false
       """
 
-      script2 = f"""
+        script2 = f"""
       function onDragStart (source, piece, position, orientation) {{{game_over_}}}
       """
 
-      script3 = """
+        script3 = """
       function onDrop (source, target) {
         // see if the move is legal
         var move = game.move({
@@ -114,7 +114,7 @@ class MyChess:
       }
       """
 
-      script4 = """
+        script4 = """
       // update the board position after the piece snap
       // for castling, en passant, pawn promotion
       function onSnapEnd () {
@@ -151,35 +151,39 @@ class MyChess:
       }
       """
 
-      config_ = f"""
+        config_ = f"""
       pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{{piece}}.png',
       position: '{self.fen}',
-      orientation: '{sidetomove}',
+      orientation: '{st.session_state.side_choice}',
       draggable: true,
       onDragStart: onDragStart,
       onDrop: onDrop,
       onSnapEnd: onSnapEnd
       """
 
-      script5 = f"""
+        script5 = f"""
       var config = {{{config_}}}
       board = Chessboard('myBoard', config)
 
       updateStatus()
+
+      if ('{self.player_side}' === 'black') {{
+          makeComputerMoveFromAPI();
+      }}
       """
 
-      ret = []
+        ret = []
 
-      ret.append(self.__header__())
-      ret.append(self.__board_placeholder__())
-      ret.append("<script>")
-      ret.append(engine_move)
-      ret.append(script1)
-      ret.append(script2)
-      ret.append(script3)
-      ret.append(script4)
-      ret.append(script5)
-      ret.append("</script>")
+        ret.append(self.__header__())
+        ret.append(self.__board_placeholder__())
+        ret.append("<script>")
+        ret.append(engine_move)
 
-      return "\n".join(ret)
+        ret.append(script1)
+        ret.append(script2)
+        ret.append(script3)
+        ret.append(script4)
+        ret.append(script5)
+        ret.append("</script>")
 
+        return "\n".join(ret)

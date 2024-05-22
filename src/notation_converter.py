@@ -18,7 +18,9 @@ def xlan_move_to_uci(board, move):
         return move
     if move[0] in ["Q", "B", "N", "R"]:
         if move[2] in ["7", "2"]:
+            print("squares_no_parse", move[1] + move[2])
             piece = board.piece_at(chess.parse_square(move[1] + move[2]))
+            print("piece", piece)
             if piece and piece.piece_type == chess.PAWN:
                 # Return the move in UCI format with promotion to the indicated piece
                 return move[1:] + move[0].lower()
@@ -40,10 +42,8 @@ def xlanplus_move_to_uci(board, move):
     Returns:
     str: The move in UCI format, like 'e2e4', or 'e7e8=Q' for pawn promotion to a queen.
     """
-    indicator = move[-1]
-    move = move[:-1]
+    indicator = move[-1].strip()
     move = xlan_move_to_uci(board, move)
-
     return move, indicator
 
 
