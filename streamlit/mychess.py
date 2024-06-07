@@ -92,8 +92,8 @@ class MyChess:
       """
 
         script3 = """
-      function onDrop (source, target) {
-        // see if the move is legal
+      function onDrop(source, target) {
+        // See if the move is legal
         var move = game.move({
           from: source,
           to: target,
@@ -103,13 +103,21 @@ class MyChess:
         // illegal move
         if (move === null) return 'snapback'
 
-        if (window.parent) {
-          window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
+        updateStatus()  // Update game status immediately after the move
+
+        // Check if the game is over after the move
+        if (game.game_over()) {
+          // Optionally send game status to Streamlit
+          if (window.parent) {
+            window.parent.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn(), 'status': 'Game Over'});
+          }
+          else {
+            window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn(), 'status': 'Game Over'});
+          }
+          return;  // Exit the function if the game is over
         }
-        else {
-          window.stBridges.send("my-bridge", {'move': move, 'fen': game.fen(), 'pgn': game.pgn()});
-        }
-        updateStatus()
+
+        // Make computer move if the game is still ongoing
         makeComputerMoveFromAPI()
       }
       """
