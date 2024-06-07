@@ -2,43 +2,44 @@ import streamlit as st
 import datetime as dt
 
 
-# Add a block of HTML code to the app
 def apply_css():
     """
-    Apply CSS styling to the app.
+    Apply custom CSS styling to the app.
     """
+    # You'll need to ensure that the CSS file path correctly points to where your style.css is located.
     st.markdown(
         '<link rel="stylesheet" href="streamlit\style.css">', unsafe_allow_html=True
     )
 
 
-def set_page(title="Chess", page_icon="♟️"):
+def set_page(title="Leon LLM", page_icon="♔"):
+    """
+    Sets the page configuration with a custom title, icon, and other settings.
+    """
     st.set_page_config(
         page_title=title,
         page_icon=page_icon,
         layout="wide",
         initial_sidebar_state="expanded",
         menu_items={
-            "Get Help": "https://github.com/dakotalock/QuantumBlue",
-            "Report a bug": "https://github.com/dakotalock/QuantumBlue",
-            "About": "# Streamlit chessboard",
+            "About": "# This is the Leon LLM project, created by Jerome Maag and Lars Schmid.",
         },
     )
 
     apply_css()
 
-    st.title("Streamlit Chessboard")
-
-
-"""Manages session states variables.
-"""
+    # This sets the header or title of your app's main page
+    st.title(title)
 
 
 def init_states():
+    """
+    Initialize session state variables.
+    """
     if "next" not in st.session_state:
         st.session_state.next = 0
 
-    if ("curfen" not in st.session_state) or ("moves" not in st.session_state):
+    if "curfen" not in st.session_state or "moves" not in st.session_state:
         st.session_state.curside = "white"
         st.session_state.curfen = (
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -53,7 +54,3 @@ def init_states():
                 "timestamp": str(dt.datetime.now()),
             }
         }
-
-    # Get the info from current board after the user made the move.
-    # The data will return the move, fen and the pgn.
-    # The move contains the from sq, to square, and others.
